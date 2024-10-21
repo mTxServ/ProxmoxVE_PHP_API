@@ -86,6 +86,13 @@ class Request
              return self::$Client->put($api, $params);
              break;
            case "POST":
+             if(str_contains($path, '/agent/exec') {
+                 self::$Client->setOpts([
+                     CURLOPT_HTTPHEADER => array(
+                       'Content-Type:application/json'
+                     )
+                 ]);
+             }
              return self::$Client->post($api, $params);
              break;
            case "DELETE":
