@@ -86,7 +86,7 @@ class Request
              return self::$Client->put($api, $params);
              break;
            case "POST":
-             if($params == 'empty') {
+             if($params == null) {
                  return self::$Client->post($api);
              } else {
                  self::$Client->setHeader('Content-Type', 'application/json');
