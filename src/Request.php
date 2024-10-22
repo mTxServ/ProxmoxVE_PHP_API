@@ -48,12 +48,15 @@ class Request
             CURLOPT_SSL_VERIFYPEER => $verifySSL,
             CURLOPT_SSL_VERIFYHOST => $verifyHost,
             CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_HTTPHEADER => array(
+              'Content-Type: application/json'
+            )
         ]);
-        $response = self::$Client->post("https://".self::$hostname.":".self::$port."/api2/json/access/ticket", array(
+        $response = self::$Client->post("https://".self::$hostname.":".self::$port."/api2/json/access/ticket", json_encode(array(
             'username'  => self::$username,
             'password'  => self::$password,
             'realm'     => self::$realm,
-        ));
+        )));
         if (!$response) {
             throw new ProxmoxException('Request params empty');
         }
@@ -69,7 +72,7 @@ class Request
      * @param array $params
      * @param string $method
     */
-    public static function Request($path, array $params = null, $method="GET")
+    public static function Request($path, $params = null, $method="GET")
     {
         if (substr($path, 0, 1) != '/') {
             $path = '/' . $path;
@@ -83,14 +86,12 @@ class Request
              return self::$Client->put($api, $params);
              break;
            case "POST":
-             if(str_contains($path, '/agent/exec')) {
-                 self::$Client->setOpts([
-                     CURLOPT_HTTPHEADER => array(
-                       'Content-Type:application/json'
-                     )
-                 ]);
+             if($params == 'ping') {
+                 return self::$Client->post($api);
+             } else {
+                 self::$Client->setHeader('Content-Type', 'application/json');
+                 return self::$Client->post($api, json_encode($params));
              }
-             return self::$Client->post($api, $params);
              break;
            case "DELETE":
              self::$Client->removeHeader('Content-Length');
